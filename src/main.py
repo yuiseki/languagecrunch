@@ -112,6 +112,7 @@ def nlp_everything():
     }
 
 
+@route('/', method="GET")
 @route('/health', method="GET")
 def health_check():
     return {

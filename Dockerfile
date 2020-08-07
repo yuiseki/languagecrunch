@@ -12,6 +12,5 @@ RUN python3.6 -m textblob.download_corpora
 WORKDIR /
 ADD src /app
 
-EXPOSE 8080
-
-CMD python3.6 /app/main.py 8080
+EXPOSE $PORT
+CMD python3.6 /app/main.py $PORT
