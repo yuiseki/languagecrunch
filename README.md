@@ -22,7 +22,7 @@ $ docker run -it -p 8080:8080 yuiseki/languagecrunch-ja
 Example API call:
 
 ```bash
-$ curl http://localhost:8080/nlp/parse?`echo -n "The new twitter is so weird. Seriously. Why is there a new twitter? What was wrong with the old one? Fix it now." | python -c "import urllib, sys; print(urllib.urlencode({'sentence': sys.stdin.read()}))"`
+$ curl http://localhost:8080/nlp/parse?`echo -n "すもももももももものうち" | python -c "import urllib, sys; print(urllib.urlencode({'sentence': sys.stdin.read()}))"`
 ```
 
 ## Endpoints
@@ -34,10 +34,6 @@ $ curl http://localhost:8080/nlp/parse?`echo -n "The new twitter is so weird. Se
 ### Word lookup [Wordnet]
 
   `GET http://localhost:8080/nlp/word?word=ask&pos=v`
-
-### Coreference resolution [neuralcoref]
-
-  `GET http://localhost:8080/nlp/coref?sentence=<URL-encoded sentences>`
 
 ## Model Details
 
