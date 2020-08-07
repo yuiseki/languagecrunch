@@ -1,6 +1,6 @@
 # LanguageCrunch NLP Service docker image
 
-Docker image: https://hub.docker.com/r/artpar/languagecrunch/
+Docker image: https://hub.docker.com/r/yuiseki/languagecrunch-ja/
 
 - **[Quickstart](#quickstart)**
 - **[Endpoints](#endpoints)**
@@ -16,7 +16,7 @@ Docker image: https://hub.docker.com/r/artpar/languagecrunch/
 Pull and run the Docker image, listening on port 8080:
 
 ```
-$ docker run -it -p 8080:8080 artpar/languagecrunch
+$ docker run -it -p 8080:8080 yuiseki/languagecrunch-ja
 ```
 
 Example API call:

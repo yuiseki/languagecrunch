@@ -2,7 +2,7 @@ numpy
 bottle
 sympy
 simplejson
-spacy
+spacy==2.2
 nltk
 textblob
 keras==2.0.9

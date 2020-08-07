@@ -15,45 +15,12 @@ import sys
 from nltk.corpus import wordnet as wn
 from numpy import dot, unicode
 from numpy.linalg import norm
-from neuralcoref import Coref
-from neuralcoref.data import MENTION_LABEL
-
-
-class CorefWrapper(Coref):
-    def parse_and_get_mentions(self, utterances, utterances_speakers_id=None, context=None,
-                               context_speakers_id=None, speakers_names=None):
-        self.data.set_utterances(context, context_speakers_id, speakers_names)
-        self.data.add_utterances(utterances, utterances_speakers_id, speakers_names)
-
-    def run_coref(self):
-        self.run_coref_on_utterances(last_utterances_added=True, follow_chains=True)
-        coreferences = self.get_most_representative(use_no_coref_list=False)
-
-        json_mentions = [{'index': mention.index,
-                          'start': mention.start_char,
-                          'end': mention.end_char,
-                          'utterance': mention.utterance_index,
-                          'type': MENTION_LABEL[mention.mention_type],
-                          'text': mention.text} for mention in self.data.mentions]
-        json_coreferences = [{'original': original.text,
-                              'resolved': resolved.text} for original, resolved in coreferences.items()]
-        scores = self.get_scores()
-        return {"coreferences": json_coreferences,
-                "mentions": json_mentions,
-                "singleScores": scores["single_scores"],
-                "pairScores": scores["pair_scores"]}
-
 
 cosine = lambda v1, v2: dot(v1, v2) / (norm(v1) * norm(v2))
 
-# Load English tokenizer, tagger, parser, NER and word vectors
-# nlp = spacy.load('en_vectors_web_lg')
 logging.info("Loading spacy model, wait for confirmation before using")
-nlp = spacy.load('en_core_web_lg')
-# rest_countries = RESTCountriesComponent(nlp)  # initialise component
-# nlp.add_pipe(rest_countries)  # add it to the pipeline
+nlp = spacy.load('ja_ginza')
 logging.info("Loaded spacy model")
-coref = CorefWrapper(nlp)
 
 
 def get_sentence_entities(doc):
@@ -122,7 +89,7 @@ def get_sentence_pos(doc):
 
 
 def parse_sentence():
-    se = request.query['sentence']
+    se = request.query.getunicode('sentence')
     logging.info('parse sentence', se)
     doc1 = nlp(se)
     sents = doc1.sents
@@ -130,32 +97,9 @@ def parse_sentence():
         logging.info(sent, " -> ", sent.root)
 
 
-@route('/nlp/coref', method="GET")
-def coreferences():
-    sentences = request.query['sentence']
-
-    text_param = sentences
-    if text_param is not None:
-        text = text_param
-        context = []
-        if "context" in request.query:
-            context = [unicode(utt) for utt in request.query.getall("context")]
-        text_speaker = request.query["textspeaker"] if "textspeaker" in request.query else ""
-        context_speakers = request.query.getall("contextspeakers") if "contextspeakers" in request.query else []
-        speakers_names = request.query["speakersnames"] if "speakersnames" in request.query else {}
-        print("text", text)
-        print("context", context)
-        coref.one_shot_coref(text, text_speaker,
-                             context, context_speakers,
-                             speakers_names)
-        return coref.run_coref()
-    else:
-        return "No sentence"
-
-
 @route('/nlp/parse', method="GET")
 def nlp_everything():
-    se = request.query['sentence']
+    se = request.query.getunicode('sentence')
     logging.info('parse sentence %s', se)
     doc = nlp(se)
     relations = extract_semantic_relations(doc)
@@ -177,7 +121,7 @@ def health_check():
 
 @route('/nlp/spellcheck', method="GET")
 def spellcheck():
-    sentence = request.query['sentence']
+    sentence = request.query.getunicode('sentence')
     b = TextBlob(sentence)
     correct_string = b.correct()
     correct = correct_string == sentence
@@ -193,8 +137,8 @@ cache = {}
 
 @route('/nlp/word', method="GET")
 def nlp_everything():
-    word = request.query['word']
-    pos = request.query['pos']
+    word = request.query.getunicode('word')
+    pos = request.query.getunicode('pos')
 
     logging.info('lookup word %s -- %s' % (word, pos))
 
